@@ -10,10 +10,16 @@ dotenv.config({
 
 const app = express()
 
-app.use(cors({
-    origin: ['http://localhost:5173','http://localhost:5174'] ,
-    credentials: true
-}))
+const allowedOrigins = ["https://doc-sense-ai-frontend-tzpt.vercel.app", "http://localhost:5173"];
+app.use(
+    cors({
+        origin: allowedOrigins,
+        credentials: true, 
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"]
+    })
+);
+
 
 app.use(express.json({limit: JSON_LIMIT})) 
 app.use(express.urlencoded({extended: true, limit:JSON_LIMIT}))
