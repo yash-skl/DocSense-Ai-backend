@@ -4,7 +4,6 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import fs from "fs";
 import Groq from "groq-sdk";
 import dotenv from 'dotenv';
-import path from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
