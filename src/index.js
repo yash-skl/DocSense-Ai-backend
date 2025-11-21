@@ -18,8 +18,14 @@ app.use(cors({
 
 app.use(express.json({limit: JSON_LIMIT})) 
 app.use(express.urlencoded({extended: true, limit:JSON_LIMIT}))
-app.use(express.static("public"))
+app.use("/uploads", express.static("uploads"));
 app.use(cookieParser())
+
+
+import pdfRoutes from './routes/pdf.routes.js'
+
+
+app.use('/api/v1/pdf', pdfRoutes)
 
 
 
