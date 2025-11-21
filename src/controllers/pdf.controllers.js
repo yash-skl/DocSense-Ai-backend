@@ -1,18 +1,27 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { apiError } from "../utils/ApiError.js";
 import { apiResponse } from "../utils/apiResponse.js";
-import pdf from 'pdf-parse'
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import fs from "fs";
-import OpenAI from "openai"
+import Groq from "groq-sdk";
+import dotenv from 'dotenv';
+import path from "path";
 
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+dotenv.config({
+    path: './.env'
+});
+
+
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
 });
 
 
 const checkPdf = asyncHandler(async (req, res) => {
     const { rules } = req.body;
+    console.log("rules : ===========>", rules);
+
     if (!rules) {
         throw new apiError(400, "rules are required.")
     }
@@ -23,8 +32,19 @@ const checkPdf = asyncHandler(async (req, res) => {
     try {
         const rulesInText = JSON.parse(rules)
         const pdfBuffer = fs.readFileSync(req.file.path)
-        const pdfData = await pdf(pdfBuffer)
-        const pdfText = pdfData.text;
+        const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(pdfBuffer) });
+        const pdfDoc = await loadingTask.promise;
+
+        let text = "";
+
+        for (let i = 1; i <= pdfDoc.numPages; i++) {
+            const page = await pdfDoc.getPage(i);
+            const content = await page.getTextContent();
+            text += content.items.map(item => item.str).join(" ") + "\n";
+        }
+
+        const pdfText = text;
+
 
         let result = [];
 
@@ -51,16 +71,20 @@ Return ONLY a JSON object with this exact structure:
 `;
 
 
-            const completion = await openai.chat.completions.create({
-                model: "gpt-3.5-turbo",
+            const completion = await groq.chat.completions.create({
+                model: "llama-3.3-70b-versatile",
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0,
-            })
+                temperature: 0
+            });
+            let content = completion.choices[0].message.content;
 
-            result.push(JSON.parse(completion.choices[0].message.content))
+            // remove code block markers
+            content = content.replace(/```json|```/g, "").trim();
+
+            result.push(JSON.parse(content))
         }
 
-        fs.unlinkSync(req.file.path);
+        fs.unlinkSync(path.resolve(req.file.path));
 
         return res
             .status(200)
