@@ -31,7 +31,7 @@ const checkPdf = asyncHandler(async (req, res) => {
     }
     try {
         const rulesInText = JSON.parse(rules)
-        const pdfBuffer = fs.readFileSync(req.file.path)
+        const pdfBuffer = req.file.buffer;
         const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(pdfBuffer) });
         const pdfDoc = await loadingTask.promise;
 
@@ -83,8 +83,6 @@ Return ONLY a JSON object with this exact structure:
 
             result.push(JSON.parse(content))
         }
-
-        fs.unlinkSync(path.resolve(req.file.path));
 
         return res
             .status(200)
