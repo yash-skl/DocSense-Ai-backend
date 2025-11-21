@@ -1,17 +1,10 @@
-import path from "path";
-import { fileURLToPath } from "url";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { apiError } from "../utils/apiError.js";
+import { apiResponse } from "../utils/apiResponse.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import fs from "fs";
 import Groq from "groq-sdk";
-import dotenv from 'dotenv';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// fix imports using absolute path
-import { apiError } from path.join(__dirname, "../utils/apiError.js");
-import { apiResponse } from path.join(__dirname, "../utils/apiResponse.js");
-import { asyncHandler } from path.join(__dirname, "../utils/asyncHandler.js");
+import dotenv from "dotenv";
 
 
 
