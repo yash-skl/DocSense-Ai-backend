@@ -1,0 +1,1 @@
+export const JSON_LIMIT = "50mb"
